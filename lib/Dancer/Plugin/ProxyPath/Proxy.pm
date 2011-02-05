@@ -44,10 +44,20 @@ Returns a fully qualified url for a path, as seen by the user.
 
 =cut
 
+my $base_header = "request-base";
+
+sub import {
+    my $class = shift;
+    my $header_name = shift;
+    if ($header_name) {
+        $base_header = $header_name;
+    }
+}
+
 sub uri_for {
     my $self = shift;
     my $destination = shift || Dancer::request->path;
-    my $base = Dancer::request->header("request-base");
+    my $base = Dancer::request->header($base_header);
     my $host = Dancer::request->header("x-forwarded-host");
     if ($base and $host) {
         my $request = "http://" . $host . $base;

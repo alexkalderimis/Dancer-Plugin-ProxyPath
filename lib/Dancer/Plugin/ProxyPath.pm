@@ -18,7 +18,6 @@ Version 0.01
 
 our $VERSION = '0.01';
 
-
 =head1 SYNOPSIS
 
 This module provides an alternative to using request->uri_for, which provides
