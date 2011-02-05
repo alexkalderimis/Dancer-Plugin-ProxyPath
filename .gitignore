@@ -1,0 +1,7 @@
+.*swp
+MANIFEST*
+MYMETA.yml
+Build
+_build
+blib
+sessions
