@@ -8,9 +8,17 @@ use Test::MockObject;
 use Test::More tests => 7;
 
 BEGIN {
+    my %headers = (
+        "request-base" => '/foo',
+        "x-forwarded-host" => 'client_side'
+    );
     my $mock_request = Test::MockObject->new;
-    $mock_request->mock(path => sub {'/foo'})
-                ->mock(referer => sub {'client_side/foo'})
+    $mock_request->mock(path => sub {'/quux'})
+                ->mock(header => sub {
+                    shift;
+                    my $header = shift;
+                    return $headers{$header};
+                })
                 ->mock(uri_for => sub {'server_side/foo'});
 
     my $mock_dancer = Test::MockObject->new;
@@ -34,13 +42,13 @@ my $proxy = Dancer::Plugin::ProxyPath::Proxy->instance;
 
 can_ok($proxy, qw/uri_for/);
 
-is($proxy->uri_for("/bar"), "client_side/bar", "Constructs abs destination");
+is($proxy->uri_for("/bar"), "http://client_side/foo/bar", "Constructs abs destination");
 
-is($proxy->uri_for("bar"), "client_side/foo/bar", "Constructs rel destination");
+is($proxy->uri_for("bar"), "http://client_side/foo/quux/bar", "Constructs rel destination");
 
-is($proxy->uri_for(Dancer::request->path), "client_side/foo", "Constructs own path explicitly");
+is($proxy->uri_for(Dancer::request->path), "http://client_side/foo/quux", "Constructs own path explicitly");
 
-is($proxy->uri_for(), "client_side/foo", "Constructs own path implicitly");
+is($proxy->uri_for(), "http://client_side/foo/quux", "Constructs own path implicitly");
 
 
 

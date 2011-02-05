@@ -47,14 +47,14 @@ Returns a fully qualified url for a path, as seen by the user.
 sub uri_for {
     my $self = shift;
     my $destination = shift || Dancer::request->path;
-    if (my $base = Dancer::request->referer) {
-        if ($self->is_absolute($destination)) {
-            my $path = Dancer::request->path;
-            $base =~ s/$path$//;
-        } else {
-            $base .= '/';
+    my $base = Dancer::request->header("request-base");
+    my $host = Dancer::request->header("x-forwarded-host");
+    if ($base and $host) {
+        my $request = "http://" . $host . $base;
+        unless ($self->is_absolute($destination)) {
+            $request .= Dancer::request->path . '/';
         }
-        return $base . $destination;
+        return $request . $destination;
     } else {
         return Dancer::request->uri_for($destination);
     }
