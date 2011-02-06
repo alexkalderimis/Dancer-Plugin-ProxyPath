@@ -2,7 +2,7 @@ package Dancer::Plugin::ProxyPath::Proxy;
 
 use warnings;
 use strict;
-use Dancer::Plugin;
+use URI;
 
 =head1 NAME
 
@@ -46,25 +46,24 @@ Returns a fully qualified url for a path, as seen by the user.
 
 my $base_header = "request-base";
 
-sub import {
-    my $class = shift;
-    my $header_name = shift;
-    if ($header_name) {
-        $base_header = $header_name;
-    }
-}
-
 sub uri_for {
     my $self = shift;
     my $destination = shift || Dancer::request->path;
-    my $base = Dancer::request->header($base_header);
+    my $base = Dancer::request->header($self->{base_header});
     my $host = Dancer::request->header("x-forwarded-host");
-    if ($base and $host) {
-        my $request = "http://" . $host . $base;
+    my $scheme = Dancer::request->env->{"psgi.url_scheme"};
+    if ($host) {
+        my $uri = URI->new;
+        $uri->scheme($scheme);
+        $uri->authority($host);
+        my $path = '';
+        $path .= $base if ($base);
         unless ($self->is_absolute($destination)) {
-            $request .= Dancer::request->path . '/';
+            $path .= Dancer::request->path . '/';
         }
-        return $request . $destination;
+        $path .= $destination;
+        $uri->path($path || '/');
+        return $uri->canonical;
     } else {
         return Dancer::request->uri_for($destination);
     }
@@ -79,8 +78,9 @@ Returns a singleton instance of this class
 my $instance;
 sub instance {
     my $class = shift;
+    my $header = shift || $base_header;
     unless ($instance) {
-        $instance = bless {}, $class;
+        $instance = bless {base_header => $header}, $class;
     }
     return $instance;
 }

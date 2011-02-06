@@ -19,6 +19,7 @@ BEGIN {
                     my $header = shift;
                     return $headers{$header};
                 })
+                ->mock(env => sub { {'psgi.url_scheme' => 'http'} })
                 ->mock(uri_for => sub {'server_side/foo'});
 
     my $mock_dancer = Test::MockObject->new;

@@ -61,8 +61,12 @@ See L<Dancer::Plugin::ProxyPath::Proxy>
 
 =cut
 
+sub _get_base_header {
+    return plugin_setting->{"base_header"};
+}
+
 register proxy => sub {
-    return Dancer::Plugin::ProxyPath::Proxy->instance;
+    return Dancer::Plugin::ProxyPath::Proxy->instance(_get_base_header);
 };
 
 before_template sub {
