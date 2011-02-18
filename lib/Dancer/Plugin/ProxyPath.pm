@@ -47,6 +47,12 @@ If no proxy information is found, proxy->uri_for will
 return the same paths as request->uri_for, making it work
 in development as well.
 
+If the proxy is not mounted at the root level, you will 
+need to pass along the mounted location, using a header (See README).
+You can set the name of the header you have chosen with the 
+plugin setting "base_header"
+
+
 =head1 EXPORT
 
 One function is exported by default: proxy

@@ -17,6 +17,17 @@ To install this module, run the following commands:
 	./Build test
 	./Build install
 
+CONFIGURATION
+
+you will need to pass a header along to the proxied server
+telling it what the base path was. If you are running apache the 
+following is along the right lines:
+
+    RequestHeader append Request-Base /application-root
+
+You can choose any other header, but don't then forget to 
+set the name of the header in the webapp's config.
+
 SUPPORT AND DOCUMENTATION
 
 After installing, you can find documentation for this module with the
