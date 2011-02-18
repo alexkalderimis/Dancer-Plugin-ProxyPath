@@ -5,7 +5,7 @@ use warnings;
 use Scalar::Util qw/refaddr/;
 use Test::MockObject;
 
-use Test::More tests => 7;
+use Test::More tests => 11;
 
 BEGIN {
     my %headers = (
@@ -45,11 +45,19 @@ can_ok($proxy, qw/uri_for/);
 
 is($proxy->uri_for("/bar"), "http://client_side/foo/bar", "Constructs abs destination");
 
+is($proxy->uri_for("/bar", {zap => 'zop'}), "http://client_side/foo/bar?zap=zop", "Handles query parameters");
+
 is($proxy->uri_for("bar"), "http://client_side/foo/quux/bar", "Constructs rel destination");
 
 is($proxy->uri_for(Dancer::request->path), "http://client_side/foo/quux", "Constructs own path explicitly");
 
 is($proxy->uri_for(), "http://client_side/foo/quux", "Constructs own path implicitly");
+
+is($proxy->secure_uri_for("/bar"), "https://client_side/foo/bar", "Constructs secure abs destination");
+
+is($proxy->secure_uri_for("bar"), "https://client_side/foo/quux/bar", "Constructs secure rel destination");
+
+is($proxy->secure_uri_for(), "https://client_side/foo/quux", "Constructs own path implicitly, and securely");
 
 
 

@@ -2,6 +2,7 @@ package Dancer::Plugin::ProxyPath::Proxy;
 
 use warnings;
 use strict;
+use Carp;
 use URI;
 
 =head1 NAME
@@ -38,7 +39,7 @@ in development as well.
 
 =head1 METHODS
 
-=head2 uri_for( path )
+=head2 uri_for( path, parameters )
 
 Returns a fully qualified url for a path, as seen by the user.
 
@@ -49,6 +50,8 @@ my $base_header = "request-base";
 sub uri_for {
     my $self = shift;
     my $destination = shift || Dancer::request->path;
+    my $parameters = shift || {};
+    ref $parameters eq 'HASH' or croak q/Usage: proxy->uri_for($path, \%parameters)/;
     my $base = Dancer::request->header($self->{base_header});
     my $host = Dancer::request->header("x-forwarded-host");
     my $scheme = Dancer::request->env->{"psgi.url_scheme"};
@@ -63,10 +66,27 @@ sub uri_for {
         }
         $path .= $destination;
         $uri->path($path || '/');
+        if (%$parameters) {
+            $uri->query_form($parameters);
+        }
         return $uri->canonical;
     } else {
-        return Dancer::request->uri_for($destination);
+        return Dancer::request->uri_for($destination, $parameters);
     }
+}
+
+=head2 secure_uri_for( path, parameters )
+
+Returns a fully qualified url for a path, as seen by the user, 
+with the scheme set to https.
+
+=cut
+
+sub secure_uri_for {
+    my $self = shift;
+    my $uri = $self->uri_for(@_);
+    $uri->scheme("https");
+    return $uri;
 }
 
 =head2 instance
