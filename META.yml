@@ -17,7 +17,10 @@ name: Dancer-Plugin-ProxyPath
 provides:
   Dancer::Plugin::ProxyPath:
     file: lib/Dancer/Plugin/ProxyPath.pm
-    version: 0.01
+    version: 0.02
+  Dancer::Plugin::ProxyPath::Proxy:
+    file: lib/Dancer/Plugin/ProxyPath/Proxy.pm
+    version: 0.02
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.01
+version: 0.02

@@ -11,11 +11,11 @@ Dancer::Plugin::ProxyPath::Proxy - Provides user-perspective paths
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 SYNOPSIS
 
@@ -62,7 +62,8 @@ sub uri_for {
         my $path = '';
         $path .= $base if ($base);
         unless ($self->is_absolute($destination)) {
-            $path .= Dancer::request->path . '/';
+            $path .= Dancer::request->path;
+            $path .= '/' unless ($path =~ m{/$});
         }
         $path .= $destination;
         $uri->path($path || '/');
@@ -115,7 +116,11 @@ whether or not it has a leading slash
 sub is_absolute {
     my $self = shift;
     my $path = shift;
-    return ($path =~ m{^/}) ? 1 : 0;
+    
+    if ($path =~ m{^/}) {
+        return 1;
+    };
+    return 0;
 }
 
 =head1 AUTHOR
